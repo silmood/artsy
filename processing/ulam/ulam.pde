@@ -1,12 +1,20 @@
+float particleRadius;
+float circleRadius;
+PVector center;
+UlamCircle ulamCircle;
+
 void setup() {
   size(756, 756);
   smooth();
+
+  particleRadius = 0.5;
+  circleRadius = 5 * (width / 12.0);
+  center = new PVector(width / 2, height / 2);
+  ulamCircle = new UlamCircle(particleRadius, circleRadius, center);
+
+}
+
+void draw() {
   background(0);
-
-  float particleRadius = 1.0;
-  float circleRadius = width / 4.0;
-  PVector center = new PVector(width / 2, height / 2);
-
-  UlamCircle spiral = new UlamCircle(particleRadius, circleRadius, center);
-  spiral.draw();
+  ulamCircle.draw();
 }

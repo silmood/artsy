@@ -7,7 +7,11 @@ public class Particle {
   private Particle(float radius) {
     this.radius = radius;
     position = new PVector(0, 0);
-    c = color(random(0, 255));
+    c = color(255);
+  }
+
+  public void setShade(color c) {
+    this.c = c;
   }
 
   public void setPosition(float x, float y) {
