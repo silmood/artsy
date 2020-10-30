@@ -6,8 +6,8 @@ public class UlamCircle {
   private ArrayList<Boolean> primes;
   private ArrayList<Particle> particles;
 
-  static final float ROTATION_SPEED = PI / 180;
-  static final float SHADE_SPEED = PI / 60;
+  static final float ROTATION_SPEED = TWO_PI / 64;
+  static final float SHADE_SPEED = TWO_PI / 64;
 
   public UlamCircle(float particleRadius, float circleRadius, PVector center) {
     this.particleRadius = particleRadius;
@@ -54,6 +54,7 @@ public class UlamCircle {
       }
       ringCount++;
     }
+    
 
     popMatrix();
   }
