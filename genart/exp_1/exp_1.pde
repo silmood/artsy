@@ -7,7 +7,8 @@ int currentFigure;
 boolean inverse = true;
 
 void setup() {
-  size(816, 816);
+  fullScreen();
+  //size(816, 816);
   smooth();
   inverse = false;
   radius = width / 2.0;
@@ -86,4 +87,3 @@ void resetNoise() {
   vNoise2 = random(10);
   cNoise = random(10);
 }
-
