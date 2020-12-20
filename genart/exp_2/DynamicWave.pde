@@ -3,111 +3,119 @@ public class DynamicWave {
   private float displayWidth;
   private float amplitude;
   private float pointTheta;
-  private float xOffset;
   private float[] points;
   private int pointLimit;
   private int pointCount;
   private float theta;
-  private float speed;
+  private int speed;
   private float origin;
   private float noise;
+  private float pointNoise;
   private color c;
   private float[][] trails;
   private int trailsCount;
   private int trailsLimit;
+  private PVector trailOffset;
 
-  public DynamicWave (float period, float amplitude, int displayWidth, float speed, float origin, color c) {
+  public DynamicWave (float period,
+                      float amplitude,
+                      int displayWidth,
+                      int speed,
+                      float origin,
+                      color c, 
+                      PVector trailOffset) {
+
     this.period = period;
     this.amplitude = amplitude;
     this.theta = 0;
     this.speed = speed;
     this.origin = origin;
     this.noise = random(10);
+    this.pointNoise = random(10);
     this.c = c;
-    this.xOffset =  0; //(TWO_PI / this.period) * random(-100, 100);
     this.pointTheta = ((TWO_PI * period) / displayWidth);
     this.points = new float[floor(displayWidth)];
     this.trailsLimit = 10;
     this.trails = new float[trailsLimit][floor(displayWidth)];
+    this.trailOffset = trailOffset;
     this.trailsCount = 0;
     this.pointLimit = 0;
     this.pointCount = 0;
   }
 
   private void calcWave() {
-    int speed = floor(10 + ((noise(noise) * 4) - 2));
+    int s = floor(this.speed + ((noise(noise) * 4) - 2));
 
     if (pointLimit < points.length - 1) {
-      for(int i = 0; i < speed && pointLimit < points.length - 1; i++) {
+      for(int i = 0; i < s && pointLimit < points.length - 1; i++) {
         float rad = pointTheta * pointCount;
-        //points[pointLimit] = noise(noise); 
         points[pointLimit] = sin(rad) * noise(noise);
-        noise += 0.0025;
+        noise += 0.025;
         pointLimit++;
         pointCount++;
       }
     } else {
-      for(int i = 0; i < pointLimit - speed; i++) {
-        points[i] = points[i + speed];
+      for(int i = 0; i < pointLimit - s; i++) {
+        points[i] = points[i + s];
       }
 
-      for (int i = pointLimit - speed; i < pointLimit; i++) {
+      for (int i = pointLimit - s; i < pointLimit; i++) {
         float rad = pointTheta * pointCount;
         points[i] = sin(rad) * noise(noise);
-        noise += 0.0025;
+        noise += 0.025;
         pointCount++;
       }
 
     }
+
+    pointNoise += 0.00025;
   }
 
   public void draw() {
     calcWave();
 
-    beginShape();
-    int limit = pointLimit - floor(noise(noise) * 200);
+    int limit = pointLimit - floor(noise(pointNoise) * 200);
+    color c1 = color(261, 100, 69);
+    color c2 = color(196, 97, 80);
+    color st = lerpColor(c1, c2, 0.0);
 
-    for(int i = 0; i < limit; i++) {
+    drawCurve(st, 0.95, limit);
+    drawTrails(15, c1, c2, limit);
+  }
+
+  private void drawCurve(color c, float weight, int pointLimit) {
+    beginShape();
+
+    for(int i = 0; i < pointLimit; i++) {
       float x = i;
       float y = origin + points[i] * amplitude;
 
-      vertex(x, y);
+      curveVertex(x, y);
 
-      if(i == limit - 1) {
+      if(i == pointLimit - 1) {
         drawStarship(x, y);
       }
     }
-    strokeWeight(0.25);
+    strokeWeight(weight);
     stroke(c);
     endShape();
+  }
 
-    for(int i = 0; i < 5 ; i++) {
+  private void drawTrails(int trailsCount, color c1, color c2, int pointLimit) {
+    for(int i = 0; i < trailsCount ; i++) {
       pushMatrix();
-      translate(-20 * i, 0);
-      
-      beginShape();
+      translate(-trailOffset.x * i, -trailOffset.y * i);
 
-      for(int j = 0; j < limit; j++) {
-        float x = j;
-        float y = origin + points[j] * amplitude;
-
-        vertex(x, y);
-
-        if(j == limit - 1) {
-          drawStarship(x, y);
-        }
-      }
-
-      strokeWeight(0.05);
-      stroke(c);
-      endShape();
+      float weight = (trailsCount - i) * 0.025;
+      color st = lerpColor(c1, c2, map(i, 0, 15, 0.2, 0.9));
+      drawCurve(st, weight, pointLimit);
 
       popMatrix();
     }
   }
 
   private void drawStarship(float x, float y) {
-    strokeWeight(2);
+    strokeWeight(1);
     stroke(360);
     point(x, y);
   }
