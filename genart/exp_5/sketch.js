@@ -15,13 +15,13 @@ function draw() {
 
   _.forEach(cellGrid.cells,
       col => _.forEach(col, cell => {
-        calcNextState(cell)
+        calcBrianBrain(cell)
       })
   )
 
   _.forEach(cellGrid.cells,
       col => _.forEach(col, cell => {
-        drawCell(cell)
+        drawBrianCell(cell)
       })
   )
 }
@@ -45,7 +45,7 @@ function createGrid(w, h, size) {
 function restartGrid(grid) {
   grid.cells =
     _.map(_.times(grid.cols, Array),
-      (col, x) => _.times(grid.rows, y => createCell(x, y))
+      (col, x) => _.times(grid.rows, y => createBrianCell(x, y))
     )
     
   _.forEach(grid.cells, 
@@ -84,19 +84,56 @@ function createCell(ex, why) {
   }
 }
 
+function createBrianCell(ex, why) {
+  let x = ex * CELL_SIZE
+  let y = why * CELL_SIZE
+  let nextState = floor(random(0, 2))
+  let state = nextState
+
+  return {
+    position: createVector(x, y),
+    nextState,
+    state,
+    neighbors: []
+  }
+}
+
 function addNeighbor(cell, cellToAdd) {
   cell.neighbors.push(cellToAdd)
 }
 
 function calcNextState(cell) {
+  cell.nextState = calcVichniacVote(cell)
+}
+
+function calcConways(cell) {
   let alive = _.countBy(cell.neighbors, 'state')
 
   if (cell.state) {
-    cell.nextState = alive.true == 2 || alive.true == 3
+    return alive.true == 2 || alive.true == 3
   } else {
-    cell.nextState = alive.true == 3
+    return alive.true == 3
   }
+}
 
+function calcVichniacVote(cell) {
+  let alive = _.countBy(cell.neighbors, 'state')
+  if (cell.state) alive.true += 1
+
+  let nextState = alive.true > 4
+
+  return alive.true === 4 || alive.true === 5 ? 
+    !nextState : nextState
+}
+
+function calcBrianBrain(cell) {
+  if (cell.state === 0) {
+    let count = _.countBy(cell.neighbors, 'state')
+    let firing = count['1']
+    cell.nextState = firing === 2 ? 1 : cell.state
+  } else {
+    cell.nextState = cell.state === 1 ? 2 : 0
+  }
 }
 
 function drawCell(cell) {
@@ -105,6 +142,22 @@ function drawCell(cell) {
 
   noStroke()
   fill(color)
+
+  ellipse(cell.position.x, cell.position.y, CELL_SIZE, CELL_SIZE)
+}
+
+function drawBrianCell(cell) {
+  cell.state = cell.nextState
+
+  noStroke()
+
+  if (cell.state === 1)
+    fill(0)
+  else if (cell.state === 2)
+    fill(150)
+  else
+    fill(255)
+
 
   ellipse(cell.position.x, cell.position.y, CELL_SIZE, CELL_SIZE)
 }
