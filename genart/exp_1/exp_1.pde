@@ -6,6 +6,7 @@ int figures[];
 int currentFigure;
 boolean inverse = true;
 
+
 void setup() {
   fullScreen();
   //size(816, 816);
