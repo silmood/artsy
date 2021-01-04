@@ -53,7 +53,7 @@ function drawVortex(vortex) {
 function updateVortex(vortex) {
   vortex.deepness = 10 + (sin(frameCount * PI / 360) * 5)
   updateMinSize(vortex)
-  updateDividerOffset(vortex)
+  //updateDividerOffset(vortex)
   updateLayers(vortex)
 }
 
@@ -80,52 +80,36 @@ function updateLayers(vortex) {
 }
 
 function drawGrid(vortex) {
-  strokeWeight(0.75)
-
   push()
+  translate(width / 2, height / 2)
+
   let c1 = color(249, 9, 137)
   let c2 = color(29, 9, 242)
   blendMode(ADD)
   strokeWeight(2)
 
   let gridLines = 10 + (sin(frameCount * PI / 360) * 10 / 2)
-  let maxSpacing = width / gridLines
-  let minSpacing = vortex.minSize / gridLines
-  let offsetX = (width - vortex.minSize) * vortex.offsetMultiplierX
-  let offsetY = (width - vortex.minSize) * vortex.offsetMultiplierY
-  let vortexMinRect = {
-    leftTop: createVector(offsetX, offsetY),
-    rightTop: createVector(offsetX + vortex.minSize, offsetY),
-    leftBottom: createVector(offsetX, offsetY + vortex.minSize),
-    rightBottom: createVector(offsetX + vortex.minSize, offsetY + vortex.minSize),
-  }
+  let vertexCount = 4
+  let vertexTheta = TWO_PI / vertexCount
 
-  _.times(gridLines + 1, i => {
-    stroke(c1)
-    line(i * maxSpacing -1, 0, (vortexMinRect.leftTop.x + i * minSpacing) - 1, (vortexMinRect.leftTop.y))
-    stroke(c2)
-    line(i * maxSpacing + 1 , 0, (vortexMinRect.leftTop.x + i * minSpacing) + 1, (vortexMinRect.leftTop.y))
-  })
+  _.times(vertexCount, v => {
+    v += 1
+    let offset = (HALF_PI) * (v - 1) + (PI / vertexCount)
+    let theta = (vertexTheta / gridLines)
 
-  _.times(gridLines + 1, i => {
-    stroke(c1)
-    line(0, i * maxSpacing - 1, vortexMinRect.leftTop.x , (vortexMinRect.leftTop.y + i * minSpacing) - 1)
-    stroke(c2)
-    line(0, i * maxSpacing + 1, vortexMinRect.leftTop.x , (vortexMinRect.leftTop.y + i * minSpacing) + 1)
-  })
+    _.times(gridLines + 1, (l) => {
+      let x = cos((l * theta) + offset)
+      let y = sin((l * theta) + offset)
+      let m = max(abs(x), abs(y))
+      let xMin = ((vortex.minSize / 2) * x) / m
+      let yMin = ((vortex.minSize / 2)* y) / m
+      let xMax = ((width / 2) * x) / m
+      let yMax = ((height / 2) * y) / m
 
-  _.times(gridLines + 1, i => {
-    stroke(c1)
-    line(i * maxSpacing - 1, height, (vortexMinRect.leftBottom.x + i * minSpacing) - 1, vortexMinRect.rightBottom.y)
-    stroke(c2)
-    line(i * maxSpacing + 1, height, (vortexMinRect.leftBottom.x + i * minSpacing) + 1, vortexMinRect.rightBottom.y)
-  })
+      stroke(c1)
+      line(xMin, yMin, xMax, yMax)
+    })
 
-  _.times(gridLines + 1, i => {
-    stroke(c1)
-    line(width, i * maxSpacing - 1, vortexMinRect.rightBottom.x, (vortexMinRect.rightTop.y + i * minSpacing) - 1)
-    stroke(c2)
-    line(width, i * maxSpacing + 1, vortexMinRect.rightBottom.x, (vortexMinRect.rightTop.y + i * minSpacing) + 1)
   })
 
   pop()
