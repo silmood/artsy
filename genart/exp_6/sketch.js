@@ -7,8 +7,8 @@ let minLayer, maxLayer
 
 
 function setup() {
-  renderer = createCanvas(300, 300)
-  capturer = new CCapture( { format: 'png', framerate: 30, verbose: true, display: false, quality: 30 } )
+  renderer = createCanvas(512, 512)
+  capturer = new CCapture( { format: 'webm', framerate: 30, verbose: true, display: false, quality: 30 } )
   frameRate(30)
 
   vortexA = createVortex()
@@ -39,7 +39,7 @@ function draw() {
     capturer.start()
     capturer.capture(renderer.canvas)
     capturing = true
-  } else if (theta >= (TWO_PI) && capturing) {
+  } else if (theta >= (PI * 3) && capturing) {
     noLoop()
     capturer.stop()
     capturer.save()
@@ -52,7 +52,7 @@ function draw() {
 
 function createVortex(offset = createVector(0, 0)) {
   let deepness = 10
-  let vortexSize = 5 * (width / 9)
+  let vortexSize = 6 * (width / 8)
   let minSize = vortexSize / 2
   let offsetMinSize = 3 * minSize / 7
   let sizeNoise = random(10)
@@ -74,7 +74,7 @@ function createVortex(offset = createVector(0, 0)) {
 
   let starsTheta = TWO_PI / 360
 
-  let stars = _.times(1024, star => {
+  let stars = _.times(2048, star => {
     let t = random(360) * starsTheta
     let r = random(minSize, vortexSize)
     return {
@@ -163,7 +163,7 @@ function updateLayers(vortex) {
 
 function updateStars(vortex) {
   _.forEach(vortex.stars, star => {
-    if (star.radius >= (vortex.size + 30)) {
+    if (star.radius >= (vortex.size + 70)) {
       star.radius = random(vortex.minSize - (vortex.minSize * 0.6), vortex.minSize + (vortex.minSize / 2))
     } else {
       star.radius += (vortex.speed * 2.5)
